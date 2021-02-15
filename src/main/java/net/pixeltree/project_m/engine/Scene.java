@@ -23,9 +23,7 @@ public abstract class Scene {
         isRunning = true;
     }
 
-    public void init(){
-
-    }
+    public void init() {}
 
     public void addGameObject(GameObject a_go){
         gameObjects.add(a_go);
@@ -36,7 +34,7 @@ public abstract class Scene {
         }
     }
 
-    public abstract void update(float a_dt);
+    public void update(float a_dt){ }
 
     public Camera getCamera(){
         return camera;

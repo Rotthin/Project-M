@@ -9,11 +9,12 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.*;
 
 public class Texture {
-    private String filePath;
-    private int texture;
+    private final String filePath;
+    private final int texture;
     private int width, height;
 
     public Texture(String a_filePath){
+        // Store the file path for debugging
         filePath = a_filePath;
 
         // Generate texture

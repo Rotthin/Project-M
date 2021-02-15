@@ -4,6 +4,7 @@ import net.pixeltree.project_m.engine.GameObject;
 import net.pixeltree.project_m.engine.Scene;
 import net.pixeltree.project_m.engine.Transform;
 import net.pixeltree.project_m.engine.components.SpriteRenderer;
+import net.pixeltree.project_m.engine.input.Input;
 import net.pixeltree.project_m.engine.input.KeyListener;
 import net.pixeltree.project_m.engine.math.Camera;
 import net.pixeltree.project_m.engine.renderer.Sprite;
@@ -34,10 +35,10 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void update(float a_dt) {
-        if(KeyListener.isKeyDown(GLFW_KEY_D)) go2.transform.position.x += a_dt*200;
-        if(KeyListener.isKeyDown(GLFW_KEY_A)) go2.transform.position.x -= a_dt*200;
-        if(KeyListener.isKeyDown(GLFW_KEY_W)) go2.transform.position.y += a_dt*200;
-        if(KeyListener.isKeyDown(GLFW_KEY_S)) go2.transform.position.y -= a_dt*200;
+        if(Input.isKeyDown(GLFW_KEY_D)) go2.transform.position.x += a_dt*200;
+        if(Input.isKeyDown(GLFW_KEY_A)) go2.transform.position.x -= a_dt*200;
+        if(Input.isKeyDown(GLFW_KEY_W)) go2.transform.position.y += a_dt*200;
+        if(Input.isKeyDown(GLFW_KEY_S)) go2.transform.position.y -= a_dt*200;
 
         for(GameObject go : gameObjects) go.update(a_dt);
         renderer.render();

@@ -7,7 +7,7 @@ public class MouseListener {
     private static MouseListener instance;
     private double scrollX, scrollY;
     private double xPos, yPos, lastY, lastX;
-    private boolean mouseButtonDown[] = new boolean[3];
+    private final boolean[] mouseButtonDown = new boolean[3];
     private boolean isDragging;
 
     private MouseListener(){
@@ -33,7 +33,7 @@ public class MouseListener {
         instance.lastY = instance.yPos;
         instance.xPos = a_xPos;
         instance.yPos = a_yPos;
-        instance.isDragging = mouseButtonDown(0) || mouseButtonDown(1) || mouseButtonDown(2);
+        instance.isDragging = isButtonDown(0) || isButtonDown(1) || isButtonDown(2);
     }
 
     public static void mouseButtonCallback(long a_window, int a_button, int a_action, int a_mods){
@@ -109,7 +109,7 @@ public class MouseListener {
         return instance.isDragging;
     }
 
-    public static boolean mouseButtonDown(int a_button){
+    public static boolean isButtonDown(int a_button){
         checkInstanceNull();
 
         if(a_button < instance.mouseButtonDown.length){

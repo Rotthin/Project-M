@@ -46,24 +46,22 @@ public class SpriteRenderer extends Component {
     }
 
     public Texture getTexture(){
-        if(sprite != null){
-            return sprite.getTexture();
-        }
+        if(sprite != null) return sprite.getTexture();
 
         return null;
     }
 
     public Vector2f[] getUvs(){
-        if(sprite != null) {
-            return sprite.getUvs();
-        }
+        if(sprite != null) return sprite.getUvs();
 
         return null;
     }
 
     public void setSprite(Sprite a_sprite){
-        sprite = a_sprite;
-        isDirty = true;
+        if(sprite != a_sprite){
+            sprite = a_sprite;
+            isDirty = true;
+        }
     }
 
     public void setColor(Vector4f a_color){

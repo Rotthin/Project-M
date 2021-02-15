@@ -14,29 +14,29 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class RenderBatch {
-    private final int POS_SIZE = 2;
-    private final int COLOR_SIZE = 4;
-    private final int UVS_SIZE = 2;
-    private final int TEX_ID_SIZE = 1;
+    private static final int POS_SIZE = 2;
+    private static final int COLOR_SIZE = 4;
+    private static final int UVS_SIZE = 2;
+    private static final int TEX_ID_SIZE = 1;
 
-    private final int POS_OFFSET = 0;
-    private final int COLOR_OFFSET = POS_OFFSET + POS_SIZE * Float.BYTES;
-    private final int UVS_OFFSET = COLOR_OFFSET + COLOR_SIZE * Float.BYTES;
-    private final int TEX_ID_OFFSET = UVS_OFFSET + UVS_SIZE * Float.BYTES;
+    private static final int POS_OFFSET = 0;
+    private static final int COLOR_OFFSET = POS_OFFSET + POS_SIZE * Float.BYTES;
+    private static final int UVS_OFFSET = COLOR_OFFSET + COLOR_SIZE * Float.BYTES;
+    private static final int TEX_ID_OFFSET = UVS_OFFSET + UVS_SIZE * Float.BYTES;
 
-    private final int VERTEX_SIZE = 9;
-    private final int VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
+    private static final int VERTEX_SIZE = 9;
+    private static final int VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
 
-    private SpriteRenderer[] sprites;
+    private final SpriteRenderer[] sprites;
     private int numSprites;
     private boolean hasRoom;
-    private float[] vertices;
-    private int[] texSlots = {0, 1, 2, 3, 4, 5, 6, 7};
+    private final float[] vertices;
+    private final int[] texSlots = {0, 1, 2, 3, 4, 5, 6, 7};
 
-    private List<Texture> textures;
+    private final List<Texture> textures;
+    private final int maxBatchSize;
+    private final Shader shader;
     private int vao, vbo;
-    private int maxBatchSize;
-    private Shader shader;
 
     public RenderBatch(int a_maxBatchSize){
         maxBatchSize = a_maxBatchSize;
@@ -44,10 +44,11 @@ public class RenderBatch {
         // Get the shader from resource manager
         shader = ResourceManager.getShader("assets/shaders/default.glsl");
 
+        // Allocate space for sprite renderers
         sprites = new SpriteRenderer[a_maxBatchSize];
 
-        // Vertices quads
-        vertices = new float[maxBatchSize * 4 * VERTEX_SIZE];
+        // Allocate the space for vertices
+        vertices = new float[maxBatchSize * VERTEX_SIZE * Float.BYTES];
 
         numSprites = 0;
         hasRoom = true;
@@ -64,22 +65,24 @@ public class RenderBatch {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, vertices.length * Float.BYTES, GL_DYNAMIC_DRAW);
 
-        // Create and upload indices buff
         int _ebo = glGenBuffers();
         int[] _indices = generateIndices();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices, GL_STATIC_DRAW);
 
-        // Enable the buffer attrib pointers
+        // Position
         glVertexAttribPointer(0, POS_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, POS_OFFSET);
         glEnableVertexAttribArray(0);
 
+        // Color
         glVertexAttribPointer(1, COLOR_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, COLOR_OFFSET);
         glEnableVertexAttribArray(1);
 
+        // Uvs
         glVertexAttribPointer(2, UVS_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, UVS_OFFSET);
         glEnableVertexAttribArray(2);
 
+        // Texture ID
         glVertexAttribPointer(3, TEX_ID_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, TEX_ID_OFFSET);
         glEnableVertexAttribArray(3);
     }
@@ -88,9 +91,8 @@ public class RenderBatch {
         // Get the index and add the sprite renderer
         int _index = numSprites;
         sprites[_index] = a_spr;
-        numSprites++;
 
-        // Add the texture to the list if it's not null and the list doesn't contain it.
+        // Add the texture to the list if needed
         if(a_spr.getTexture() != null && !textures.contains(a_spr.getTexture())){
             textures.add(a_spr.getTexture());
         }
@@ -99,12 +101,14 @@ public class RenderBatch {
         loadVertexProperties(_index);
 
         hasRoom = numSprites < maxBatchSize;
+
+        numSprites++;
     }
 
     public void render(){
         boolean _rebufferData = false;
 
-        // If any sprite is dirty, rebuffer the data
+        // Set _rebufferData to true if any sprite is dirty
         for(int i=0; i<numSprites; i++){
             SpriteRenderer _spr = sprites[i];
 
@@ -141,7 +145,7 @@ public class RenderBatch {
         // Draw the elements         6 indices per quad
         glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_INT, 0);
 
-        // Unbind the vao and disable the attrib arrays
+         // Unbind the vao and disable the attrib arrays
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glBindVertexArray(0);
@@ -192,13 +196,8 @@ public class RenderBatch {
             vertices[_offset+5] = _color.w;
 
             // Load uvs
-            if(_uvs != null){
-                vertices[_offset+6] = _uvs[i].x;
-                vertices[_offset+7] = _uvs[i].y;
-            }else{
-                vertices[_offset+6] = 0;
-                vertices[_offset+7] = 0;
-            }
+            vertices[_offset+6] = _uvs != null ? _uvs[i].x : 0;
+            vertices[_offset+7] = _uvs != null ? _uvs[i].y : 0;
 
             // Load texture id
             vertices[_offset+8] = _texID;
@@ -222,15 +221,15 @@ public class RenderBatch {
         int _offsetArrayIndex = 6 * a_index;
         int _offset = 4 * a_index;
 
-        // Triangle 1
-        a_elements[_offsetArrayIndex] = _offset + 3;
-        a_elements[_offsetArrayIndex+1] = _offset + 2;
-        a_elements[_offsetArrayIndex+2] = _offset + 0;
+        // Triangle 1  (3, 2, 0)
+        a_elements[_offsetArrayIndex] = _offset+3;
+        a_elements[_offsetArrayIndex+1] = _offset+2;
+        a_elements[_offsetArrayIndex+2] = _offset;
 
-        // Triangle 2
-        a_elements[_offsetArrayIndex+3] = _offset + 0;
-        a_elements[_offsetArrayIndex+4] = _offset + 2;
-        a_elements[_offsetArrayIndex+5] = _offset + 1;
+        // Triangle 2  (0, 2, 1)
+        a_elements[_offsetArrayIndex+3] = _offset;
+        a_elements[_offsetArrayIndex+4] = _offset+2;
+        a_elements[_offsetArrayIndex+5] = _offset+1;
     }
 
     public boolean getHasRoom() {

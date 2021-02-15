@@ -29,7 +29,6 @@ public class Transform {
 
     @Override
     public boolean equals(Object a_other){
-        if(a_other == null) return false;
         if(!(a_other instanceof Transform)) return false;
 
         Transform _t = (Transform)a_other;
