@@ -23,6 +23,12 @@ public class Shader {
         filePath = a_filePath;
 
         try{
+            // Check if file exists first
+            if(!Files.exists(Paths.get(a_filePath))){
+                System.err.println("ERROR: loading shader. '" + a_filePath + "' doesn't exist.");
+                return;
+            }
+
             // Get raw text value form file
             String _raw = new String(Files.readAllBytes(Paths.get(filePath)));
 

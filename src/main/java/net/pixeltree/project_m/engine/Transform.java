@@ -1,6 +1,9 @@
 package net.pixeltree.project_m.engine;
 
+import imgui.ImGui;
 import org.joml.Vector2f;
+
+import javax.swing.text.Position;
 
 public class Transform {
     public Vector2f position;
@@ -25,6 +28,13 @@ public class Transform {
     public void copy(Transform a_to){
         a_to.position.set(position);
         a_to.scale.set(scale);
+    }
+
+    public void imgui(){
+        if(ImGui.collapsingHeader("Transform")){
+            ImGui.text("Position: " + position);
+            ImGui.text("Scale: " + scale);
+        }
     }
 
     @Override

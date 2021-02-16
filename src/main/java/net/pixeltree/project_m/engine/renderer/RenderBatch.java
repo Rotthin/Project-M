@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
-public class RenderBatch {
+public class RenderBatch implements Comparable<RenderBatch> {
     private static final int POS_SIZE = 2;
     private static final int COLOR_SIZE = 4;
     private static final int UVS_SIZE = 2;
@@ -36,10 +36,12 @@ public class RenderBatch {
     private final List<Texture> textures;
     private final int maxBatchSize;
     private final Shader shader;
+    private int zIndex;
     private int vao, vbo;
 
-    public RenderBatch(int a_maxBatchSize){
+    public RenderBatch(int a_maxBatchSize, int a_zIndex){
         maxBatchSize = a_maxBatchSize;
+        zIndex = a_zIndex;
 
         // Get the shader from resource manager
         shader = ResourceManager.getShader("assets/shaders/default.glsl");
@@ -91,6 +93,7 @@ public class RenderBatch {
         // Get the index and add the sprite renderer
         int _index = numSprites;
         sprites[_index] = a_spr;
+        numSprites++;
 
         // Add the texture to the list if needed
         if(a_spr.getTexture() != null && !textures.contains(a_spr.getTexture())){
@@ -101,8 +104,6 @@ public class RenderBatch {
         loadVertexProperties(_index);
 
         hasRoom = numSprites < maxBatchSize;
-
-        numSprites++;
     }
 
     public void render(){
@@ -242,5 +243,14 @@ public class RenderBatch {
 
     public boolean hasTexture(Texture a_tex){
         return textures.contains(a_tex);
+    }
+
+    public int getZIndex() {
+        return zIndex;
+    }
+
+    @Override
+    public int compareTo(RenderBatch o) {
+        return Integer.compare(getZIndex(), o.getZIndex());
     }
 }

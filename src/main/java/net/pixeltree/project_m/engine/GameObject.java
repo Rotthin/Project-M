@@ -1,26 +1,30 @@
 package net.pixeltree.project_m.engine;
 
+import imgui.ImGui;
+import net.pixeltree.project_m.engine.components.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
     private String name;
     public Transform transform;
-
     private List<Component> components;
+    private int zIndex;
 
     public GameObject(String a_name){
-        init(a_name, new Transform());
+        init(a_name, new Transform(), 0);
     }
 
-    public GameObject(String a_name, Transform a_transform){
-        init(a_name, a_transform);
+    public GameObject(String a_name, Transform a_transform, int a_zIndex){
+        init(a_name, a_transform, a_zIndex);
     }
 
-    private void init(String a_name, Transform a_transform){
+    private void init(String a_name, Transform a_transform, int a_zIndex){
         name = a_name;
         components = new ArrayList<>();
         transform = a_transform;
+        zIndex = a_zIndex;
     }
 
     public <T extends Component> T getComponent(Class<T> a_type){
@@ -54,14 +58,32 @@ public class GameObject {
     }
 
     public void update(float a_dt){
-        for(int i=0; i<components.size(); i++){
-            components.get(i).update(a_dt);
+        for (Component component : components) {
+            component.update(a_dt);
         }
     }
 
     public void start(){
-        for(int i=0; i<components.size(); i++){
-            components.get(i).start();
+        for (Component component : components) {
+            component.start();
         }
+    }
+
+    public void imgui(){
+        ImGui.text("Name: " + name);
+
+        transform.imgui();
+
+        for(Component c : components){
+            c.imgui();
+        }
+    }
+
+    public int getZIndex(){
+        return zIndex;
+    }
+
+    public String getName(){
+        return name;
     }
 }

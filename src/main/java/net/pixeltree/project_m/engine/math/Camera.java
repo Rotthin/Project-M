@@ -5,7 +5,8 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Camera {
-    private Matrix4f projectionMatrix, viewMatrix;
+    private final Matrix4f projectionMatrix;
+    private final Matrix4f viewMatrix;
     public Vector2f position;
 
     public Camera(Vector2f a_pos){
@@ -20,7 +21,7 @@ public class Camera {
         projectionMatrix.identity();
 
         // Set the orthographic projection
-        projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 50.0f);
+        projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f);
     }
 
     public Matrix4f getViewMatrix(){
@@ -28,7 +29,7 @@ public class Camera {
         Vector3f _cameraUp = new Vector3f(0, 1, 0);
 
         viewMatrix.identity();
-        viewMatrix = viewMatrix.lookAt(new Vector3f(position.x, position.y, 20.0f), _cameraFront.add(position.x, position.y, 0.0f), _cameraUp);
+        viewMatrix.lookAt(new Vector3f(position.x, position.y, 20.0f), _cameraFront.add(position.x, position.y, 0.0f), _cameraUp);
 
         return viewMatrix;
     }

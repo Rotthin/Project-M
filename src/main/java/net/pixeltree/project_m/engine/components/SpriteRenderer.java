@@ -1,6 +1,6 @@
 package net.pixeltree.project_m.engine.components;
 
-import net.pixeltree.project_m.engine.Component;
+import imgui.ImGui;
 import net.pixeltree.project_m.engine.Transform;
 import net.pixeltree.project_m.engine.renderer.Sprite;
 import net.pixeltree.project_m.engine.renderer.Texture;
@@ -11,8 +11,12 @@ public class SpriteRenderer extends Component {
     private Vector4f color;
     private Sprite sprite;
 
-    private Transform lastTransform;
-    private boolean isDirty;
+    private transient Transform lastTransform;
+    private transient boolean isDirty;
+
+    public SpriteRenderer(){
+        init(new Vector4f(1,1,1,1), null);
+    }
 
     public SpriteRenderer(Vector4f a_color){
         init(a_color, null);
@@ -38,6 +42,17 @@ public class SpriteRenderer extends Component {
         if(!lastTransform.equals(gameObject.transform)){
             gameObject.transform.copy(lastTransform);
             isDirty = true;
+        }
+    }
+
+    @Override
+    public void imgui(){
+        if(ImGui.collapsingHeader("SpriteRenderer")){
+            float[] _imColor = {color.x, color.y, color.z, color.w};
+            if(ImGui.colorPicker4("Color:",_imColor)){
+                color = new Vector4f(_imColor[0], _imColor[1], _imColor[2], _imColor[3]);
+                setIsDirty(true);
+            }
         }
     }
 

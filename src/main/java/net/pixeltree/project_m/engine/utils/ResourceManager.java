@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResourceManager {
-    private static Map<String, Shader> shaders = new HashMap<>();
-    private static Map<String, Texture> textures = new HashMap<>();
-    private static Map<String, SpriteSheet> spriteSheets = new HashMap<>();
+    private static final Map<String, Shader> shaders = new HashMap<>();
+    private static final Map<String, Texture> textures = new HashMap<>();
+    private static final Map<String, SpriteSheet> spriteSheets = new HashMap<>();
 
     public static Shader getShader(String a_name){
         File _file = new File(a_name);

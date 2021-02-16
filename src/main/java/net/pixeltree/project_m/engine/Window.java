@@ -1,5 +1,7 @@
 package net.pixeltree.project_m.engine;
 
+import net.pixeltree.project_m.engine.editor.imgui.ImGuiLayer;
+import net.pixeltree.project_m.engine.editor.scenes.Scene;
 import net.pixeltree.project_m.engine.input.KeyListener;
 import net.pixeltree.project_m.engine.input.MouseListener;
 import net.pixeltree.project_m.engine.editor.scenes.LevelEditorScene;
@@ -17,10 +19,11 @@ public class Window {
     private static Window instance;
     private int width;
     private int height;
-    private String title;
+    private final String title;
     public Vector4f clearColor;
-    private long glfwWindow;
     private static Scene currentScene;
+    private long windowPtr;
+    private ImGuiLayer imGuiLayer;
 
     private Window(){
         width = 1920;
@@ -68,6 +71,7 @@ public class Window {
 
         initGlfw();
         initGl();
+        initImGui();
 
         changeScene(0);
     }
@@ -82,19 +86,23 @@ public class Window {
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_MAXIMIZED);
 
         // Create window
-        glfwWindow = glfwCreateWindow(width, height, title, NULL, NULL);
-        if(glfwWindow == 0) throw new IllegalStateException("unable to create the glfw window.");
+        windowPtr = glfwCreateWindow(width, height, title, NULL, NULL);
+        if(windowPtr == 0) throw new IllegalStateException("unable to create the glfw window.");
 
         // Set callbacks
-        glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
-        glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
-        glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
-        glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
+        glfwSetCursorPosCallback(windowPtr, MouseListener::mousePosCallback);
+        glfwSetMouseButtonCallback(windowPtr, MouseListener::mouseButtonCallback);
+        glfwSetScrollCallback(windowPtr, MouseListener::mouseScrollCallback);
+        glfwSetKeyCallback(windowPtr, KeyListener::keyCallback);
+        glfwSetWindowSizeCallback(windowPtr, (w, width, height)->{
+            setWidth(width);
+            setHeight(height);
+        });
 
-        glfwMakeContextCurrent(glfwWindow);
+        glfwMakeContextCurrent(windowPtr);
         glfwSwapInterval(1);
 
-        glfwShowWindow(glfwWindow);
+        glfwShowWindow(windowPtr);
     }
 
     private void initGl(){
@@ -104,36 +112,59 @@ public class Window {
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 
+    private void initImGui(){
+        imGuiLayer = new ImGuiLayer(windowPtr);
+        imGuiLayer.init();
+    }
+
     private void loop(){
         float _beginTime = (float)glfwGetTime();
         float _endTime;
         float _dt = -1.0f;
 
-        while(!glfwWindowShouldClose(glfwWindow)){
+        while(!glfwWindowShouldClose(windowPtr)){
             glfwPollEvents();
 
             glClear(GL_COLOR_BUFFER_BIT);
 
             if(_dt >= 0 || currentScene != null) currentScene.update(_dt);
 
-            glfwSwapBuffers(glfwWindow);
-
-            // Reset the MoueListener temp values
-            MouseListener.reset();
+            imGuiLayer.update(_dt, currentScene);
+            glfwSwapBuffers(windowPtr);
 
             // Calculate delta
             _endTime = (float)glfwGetTime();
             _dt = _endTime - _beginTime;
             _beginTime = _endTime;
+
+            MouseListener.reset();
         }
 
         free();
     }
 
     private void free(){
-        glfwFreeCallbacks(glfwWindow);
-        glfwDestroyWindow(glfwWindow);
+        glfwFreeCallbacks(windowPtr);
+        glfwDestroyWindow(windowPtr);
         glfwTerminate();
         glfwSetErrorCallback(null).free();
+
+        if(imGuiLayer != null) imGuiLayer.free();
+    }
+
+    public static int getWidth(){
+        return getInstance().width;
+    }
+
+    public static int getHeight(){
+        return getInstance().height;
+    }
+
+    public static void setWidth(int a_w){
+        getInstance().width = a_w;
+    }
+
+    public static void setHeight(int a_h){
+        getInstance().height = a_h;
     }
 }

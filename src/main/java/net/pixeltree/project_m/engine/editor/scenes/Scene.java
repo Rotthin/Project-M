@@ -1,5 +1,7 @@
-package net.pixeltree.project_m.engine;
+package net.pixeltree.project_m.engine.editor.scenes;
 
+import imgui.ImGui;
+import net.pixeltree.project_m.engine.GameObject;
 import net.pixeltree.project_m.engine.math.Camera;
 import net.pixeltree.project_m.engine.renderer.Renderer;
 
@@ -11,6 +13,7 @@ public abstract class Scene {
     protected Camera camera;
     private boolean isRunning=false;
     protected List<GameObject> gameObjects = new ArrayList<>();
+    protected GameObject activeGameObject = null;
 
     public Scene(){ }
 
@@ -39,4 +42,16 @@ public abstract class Scene {
     public Camera getCamera(){
         return camera;
     }
+
+    public void imgui(){
+        if(activeGameObject != null){
+            ImGui.begin("Inspector");
+            activeGameObject.imgui();
+            ImGui.end();
+        }
+
+        sceneImgui();
+    }
+
+    protected void sceneImgui(){ }
 }
