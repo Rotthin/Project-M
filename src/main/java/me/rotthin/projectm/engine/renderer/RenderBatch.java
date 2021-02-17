@@ -26,7 +26,7 @@ public class RenderBatch implements Comparable<RenderBatch> {
     private static final int VERTEX_SIZE = 9;
     private static final int VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
 
-    private final SpriteRenderer[] sprites;
+    public final SpriteRenderer[] sprites;
     private int numSprites;
     private boolean hasRoom;
     private final float[] vertices;
@@ -111,7 +111,6 @@ public class RenderBatch implements Comparable<RenderBatch> {
         // Set _rebufferData to true if any sprite is dirty
         for(int i=0; i<numSprites; i++){
             SpriteRenderer _spr = sprites[i];
-
             if(_spr.getIsDirty()){
                 loadVertexProperties(i);
                 _spr.setIsDirty(false);

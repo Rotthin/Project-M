@@ -3,6 +3,7 @@ package me.rotthin.projectm.engine.editor.scenes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.rotthin.projectm.engine.components.Component;
+import me.rotthin.projectm.engine.components.SpriteRenderer;
 import me.rotthin.projectm.engine.math.Camera;
 import me.rotthin.projectm.engine.renderer.Renderer;
 import me.rotthin.projectm.engine.main.GameObject;
@@ -14,15 +15,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Scene {
-    protected Renderer renderer = new Renderer();
+    public Renderer renderer = new Renderer();
     protected Camera camera;
     private boolean isRunning=false;
     protected List<GameObject> gameObjects = new ArrayList<>();
-    protected GameObject selectedObject = null;
     protected boolean loaded=false;
 
     public Scene(){  }
@@ -45,8 +46,13 @@ public abstract class Scene {
             a_go.start();
             renderer.add(a_go);
         }
+    }
 
-        selectedObject = a_go;
+    public void removeGameObject(GameObject a_go){
+        if(a_go == null || !gameObjects.contains(a_go)){
+            return;
+        }
+        gameObjects.remove(a_go);
     }
 
     public void update(float a_dt){ }

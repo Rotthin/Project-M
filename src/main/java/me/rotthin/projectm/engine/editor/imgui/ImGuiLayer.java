@@ -9,6 +9,8 @@ import imgui.callbacks.ImStrSupplier;
 import imgui.enums.*;
 import imgui.gl3.ImGuiImplGl3;
 import me.rotthin.projectm.engine.editor.scenes.Scene;
+import me.rotthin.projectm.engine.input.KeyListener;
+import me.rotthin.projectm.engine.input.MouseListener;
 import me.rotthin.projectm.engine.renderer.Window;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -77,6 +79,10 @@ public class ImGuiLayer {
             io.setKeyShift(io.getKeysDown(GLFW_KEY_LEFT_SHIFT) || io.getKeysDown(GLFW_KEY_RIGHT_SHIFT));
             io.setKeyAlt(io.getKeysDown(GLFW_KEY_LEFT_ALT) || io.getKeysDown(GLFW_KEY_RIGHT_ALT));
             io.setKeySuper(io.getKeysDown(GLFW_KEY_LEFT_SUPER) || io.getKeysDown(GLFW_KEY_RIGHT_SUPER));
+
+            if(!io.getWantCaptureKeyboard()){
+                KeyListener.keyCallback(windowPtr, key, scancode, action, mods);
+            }
         });
 
         glfwSetCharCallback(windowPtr, (w, c) -> {
@@ -98,6 +104,10 @@ public class ImGuiLayer {
 
             if (!io.getWantCaptureMouse() && mouseDown[1]) {
                 ImGui.setWindowFocus(null);
+            }
+
+            if(!io.getWantCaptureMouse()){
+                MouseListener.mouseButtonCallback(windowPtr, button, action, mods);
             }
         });
 

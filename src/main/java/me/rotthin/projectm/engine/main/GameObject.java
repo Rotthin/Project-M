@@ -2,9 +2,11 @@ package me.rotthin.projectm.engine.main;
 
 import imgui.ImGui;
 import me.rotthin.projectm.engine.components.Component;
+import me.rotthin.projectm.engine.components.SpriteRenderer;
 import me.rotthin.projectm.engine.editor.imgui.ImGuiUtils;
 import me.rotthin.projectm.engine.editor.scenes.LevelEditorScene;
 import me.rotthin.projectm.engine.renderer.Window;
+import org.omg.CORBA.BAD_TYPECODE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,8 @@ public class GameObject {
     }
 
     public void addComponent(Component a_c){
+        if(components.stream().anyMatch(a_c.getClass()::isInstance)){ return; }
+
         components.add(a_c);
         a_c.gameObject = this;
     }

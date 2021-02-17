@@ -1,5 +1,10 @@
 package me.rotthin.projectm.engine.input;
 
+import me.rotthin.projectm.engine.renderer.Window;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
@@ -107,6 +112,47 @@ public class MouseListener {
         checkInstanceNull();
 
         return instance.isDragging;
+    }
+
+    public static float getOrthoY(){
+        float _currentY = Window.getHeight() - getY();
+
+        // Get the -1.0 - 1.0 mouse x pos
+        _currentY = (_currentY / (float)Window.getHeight() ) * 2.0f -1.0f;
+
+        Vector4f _tmp = new Vector4f(0, _currentY, 0, 1);
+
+        _tmp.mul(Window.getCurrentScene().getCamera().getInvProjectionMatrix()).mul(Window.getCurrentScene().getCamera().getInvViewMatrix());
+
+        return _tmp.y;
+    }
+
+    public static float getOrthoX(){
+        float _currentX = getX();
+        // Get the -1.0 - 1.0 mouse x pos
+        _currentX = (_currentX / (float)Window.getWidth()) * 2.0f -1.0f;
+
+        Vector4f _tmp = new Vector4f(_currentX, 0, 0, 1);
+
+        _tmp.mul(Window.getCurrentScene().getCamera().getInvProjectionMatrix()).mul(Window.getCurrentScene().getCamera().getInvViewMatrix());
+
+        return _tmp.x;
+    }
+
+    public static Vector2f getOrtho(){
+        float _currentX = getX();
+        // Get the -1.0 - 1.0 mouse x pos
+        _currentX = (_currentX / (float)Window.getWidth()) * 2.0f -1.0f;
+
+        float _currentY = Window.getHeight() - getY();
+        // Get the -1.0 - 1.0 mouse y pos
+        _currentY = (_currentY / (float)Window.getHeight()) * 2.0f -1.0f;
+
+        Vector4f _tmp = new Vector4f(_currentX, _currentY, 0, 1);
+
+        _tmp.mul(Window.getCurrentScene().getCamera().getInvProjectionMatrix()).mul(Window.getCurrentScene().getCamera().getInvViewMatrix());
+
+        return new Vector2f(_tmp.x, _tmp.y);
     }
 
     public static boolean isButtonDown(int a_button){

@@ -69,4 +69,8 @@ public class Texture {
     public int getHeight(){
         return height;
     }
+
+    public int getID() {
+        return texture;
+    }
 }

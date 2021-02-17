@@ -3,6 +3,8 @@ package me.rotthin.projectm.engine.renderer;
 import org.joml.Vector2f;
 
 public class Sprite {
+    private float width, height;
+
     private Texture texture;
     private Vector2f[] uvs = {
         new Vector2f(1, 1),
@@ -42,5 +44,25 @@ public class Sprite {
 
     public void setUvs(Vector2f[] a_uvs){
         uvs = a_uvs;
+    }
+
+    public int getTextureID(){
+        return texture == null ? -1 : texture.getID();
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public void setWidth(float a_w) {
+        width = a_w;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public void setHeight(float a_h) {
+        height = a_h;
     }
 }
