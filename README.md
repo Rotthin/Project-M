@@ -1,6 +1,5 @@
 # Project M
-Project M is a Game Engine coded by Rotthin in Java and lwjgl
-
+Project M is a 2D Game Engine coded in Java and lwjgl.
 
 
 Special thanks to:
