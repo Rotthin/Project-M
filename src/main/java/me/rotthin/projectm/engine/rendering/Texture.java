@@ -1,4 +1,4 @@
-package me.rotthin.projectm.engine.renderer;
+package me.rotthin.projectm.engine.rendering;
 
 import org.lwjgl.BufferUtils;
 
@@ -9,17 +9,38 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.*;
 
 public class Texture {
-    private final String filePath;
-    private final int texture;
+    private String filePath;
+    private transient int id;
     private int width, height;
 
-    public Texture(String a_filePath){
+    public Texture(){
+        id = -1;
+        width = -1;
+        height = -1;
+    }
+
+    public Texture(int a_width, int a_height){
+        // Store the file path for debugging
+        filePath = "Generated";
+
+        // Generate texture
+        id = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, a_width, a_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    }
+
+    public void init(String a_filePath){
         // Store the file path for debugging
         filePath = a_filePath;
 
         // Generate texture
-        texture = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, texture);
+        id = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, id);
 
         // Set texture parameters
         // Repeat texture when uv is bigger than 1 or smaller than 0
@@ -42,7 +63,7 @@ public class Texture {
         if(_img != null){
             width = _width.get(0);
             height = _height.get(0);
-             
+
             if(_channels.get(0) == 3){
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width.get(0), _height.get(0), 0, GL_RGB, GL_UNSIGNED_BYTE, _img);
             }else if(_channels.get(0) == 4){
@@ -55,7 +76,7 @@ public class Texture {
     }
 
     public void bind(){
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glBindTexture(GL_TEXTURE_2D, id);
     }
 
     public void unbind(){
@@ -70,7 +91,20 @@ public class Texture {
         return height;
     }
 
+    public String  getFilePath(){
+        return filePath;
+    }
+
     public int getID() {
-        return texture;
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(o == null) return false;
+        if(!(o instanceof Texture)) return false;
+
+        Texture _tex = (Texture)o;
+        return _tex.getWidth() == width && _tex.getHeight() == height && _tex.getID() == id && _tex.getFilePath().equals(filePath);
     }
 }

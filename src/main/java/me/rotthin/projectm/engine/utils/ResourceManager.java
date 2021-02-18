@@ -1,8 +1,8 @@
 package me.rotthin.projectm.engine.utils;
 
-import me.rotthin.projectm.engine.renderer.Shader;
-import me.rotthin.projectm.engine.renderer.SpriteSheet;
-import me.rotthin.projectm.engine.renderer.Texture;
+import me.rotthin.projectm.engine.rendering.Shader;
+import me.rotthin.projectm.engine.rendering.SpriteSheet;
+import me.rotthin.projectm.engine.rendering.Texture;
 
 import java.io.File;
 import java.util.HashMap;
@@ -34,7 +34,8 @@ public class ResourceManager {
         if(textures.containsKey(_file.getAbsolutePath())){
             return textures.get(_file.getAbsolutePath());
         }else{
-            Texture _texture = new Texture(a_name);
+            Texture _texture = new Texture();
+            _texture.init(a_name);
             textures.put(_file.getAbsolutePath(), _texture);
 
             return _texture;
@@ -52,10 +53,7 @@ public class ResourceManager {
     public static SpriteSheet getSpriteSheet(String a_name){
         File _file = new File(a_name);
 
-        if(!spriteSheets.containsKey(_file.getAbsolutePath())){
-            assert false: "Error: Tried to access spritesheet that is not added to map.";
-        }
-
+        assert spriteSheets.containsKey(_file.getAbsolutePath()) : "Error: Tried to access spritesheet that is not added to map.";
         return spriteSheets.getOrDefault(_file.getAbsolutePath(), null);
     }
 }

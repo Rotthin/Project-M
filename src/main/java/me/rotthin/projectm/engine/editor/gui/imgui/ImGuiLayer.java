@@ -1,17 +1,19 @@
-package me.rotthin.projectm.engine.editor.imgui;
+package me.rotthin.projectm.engine.editor.gui.imgui;
 
-import imgui.ImFontAtlas;
-import imgui.ImFontConfig;
-import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.callbacks.ImStrConsumer;
-import imgui.callbacks.ImStrSupplier;
-import imgui.enums.*;
+import imgui.*;
+import imgui.callback.ImStrConsumer;
+import imgui.callback.ImStrSupplier;
+import imgui.flag.*;
 import imgui.gl3.ImGuiImplGl3;
+import imgui.type.ImBoolean;
+import me.rotthin.projectm.engine.debug.DebugLog;
+import me.rotthin.projectm.engine.editor.GameViewWindow;
 import me.rotthin.projectm.engine.editor.scenes.Scene;
 import me.rotthin.projectm.engine.input.KeyListener;
 import me.rotthin.projectm.engine.input.MouseListener;
-import me.rotthin.projectm.engine.renderer.Window;
+import me.rotthin.projectm.engine.rendering.Window;
+
+import java.io.File;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -31,6 +33,7 @@ public class ImGuiLayer {
         final ImGuiIO io = ImGui.getIO();
         io.setIniFilename("imgui.ini");
         io.setConfigFlags(ImGuiConfigFlags.NavEnableKeyboard); // Navigation with keyboard
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
         io.setBackendFlags(ImGuiBackendFlags.HasMouseCursors); // Mouse cursors to display while resizing windows etc.
         io.setBackendPlatformName("imgui_java_impl_glfw");
 
@@ -106,7 +109,7 @@ public class ImGuiLayer {
                 ImGui.setWindowFocus(null);
             }
 
-            if(!io.getWantCaptureMouse()){
+            if(!io.getWantCaptureMouse() || GameViewWindow.getWantCaptureMouse()){
                 MouseListener.mouseButtonCallback(windowPtr, button, action, mods);
             }
         });
@@ -145,16 +148,57 @@ public class ImGuiLayer {
         imGuiGl3.init();
     }
 
+    public void setupDockspace(){
+        int _winFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
+
+        ImGui.setNextWindowPos(0,0, ImGuiCond.Always);
+        ImGui.setNextWindowSize(Window.getWidth(), Window.getHeight());
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+        _winFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+
+        ImGui.begin("Dockspace", new ImBoolean(true), _winFlags);
+        ImGui.popStyleVar(2);
+
+        ImGui.dockSpace(ImGui.getID("Dockspace"));
+
+        ImGui.end();
+    }
+
     public void update(float a_dt, Scene a_currentScene){
         startFrame(a_dt);
 
         ImGui.newFrame();
+        setupDockspace();
         a_currentScene.imgui();
-//        ImGui.showDemoWindow();
+        GameViewWindow.imgui();
+        DebugLog.imgui();
+        imguiMenuBar();
         ImGui.render();
 
-        endFrame();
+        imGuiGl3.render(ImGui.getDrawData());
     }
+
+    private void imguiMenuBar(){
+        ImGui.beginMainMenuBar();
+
+        if(ImGui.beginMenu("Project")){
+            if(ImGui.menuItem("Delete scene")){
+                File _scene = new File("levels/level.scn");
+                _scene.delete();
+                Window.changeScene(0);
+            }
+
+            else if(ImGui.menuItem("Save scene")){
+                Window.getCurrentScene().save();
+            }
+
+            ImGui.endMenu();
+        }
+
+        ImGui.endMainMenuBar();
+    }
+
 
     private void startFrame(final float deltaTime) {
         // Get window properties and mouse position
@@ -175,10 +219,6 @@ public class ImGuiLayer {
         final int imguiCursor = ImGui.getMouseCursor();
         glfwSetCursor(windowPtr, mouseCursors[imguiCursor]);
         glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-
-    private void endFrame() {
-        imGuiGl3.render(ImGui.getDrawData());
     }
 
     public void free() {

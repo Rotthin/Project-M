@@ -1,4 +1,4 @@
-package me.rotthin.projectm.engine.renderer;
+package me.rotthin.projectm.engine.rendering;
 
 import org.joml.Vector2f;
 

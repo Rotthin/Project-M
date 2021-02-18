@@ -3,9 +3,8 @@ package me.rotthin.projectm.engine.editor.scenes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.rotthin.projectm.engine.components.Component;
-import me.rotthin.projectm.engine.components.SpriteRenderer;
-import me.rotthin.projectm.engine.math.Camera;
-import me.rotthin.projectm.engine.renderer.Renderer;
+import me.rotthin.projectm.engine.main.Camera;
+import me.rotthin.projectm.engine.rendering.Renderer;
 import me.rotthin.projectm.engine.main.GameObject;
 import me.rotthin.projectm.engine.serialization.ComponentDeserializer;
 import me.rotthin.projectm.engine.serialization.GameObjectDeserializer;
@@ -15,7 +14,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,11 +39,7 @@ public abstract class Scene {
 
     public void addGameObject(GameObject a_go){
         gameObjects.add(a_go);
-
-        if(isRunning){
-            a_go.start();
-            renderer.add(a_go);
-        }
+        if(isRunning){ a_go.start(); }
     }
 
     public void removeGameObject(GameObject a_go){
@@ -65,8 +59,7 @@ public abstract class Scene {
         sceneImgui();
     }
 
-    protected void sceneImgui(){
-    }
+    protected void sceneImgui(){ }
 
     public void save(){
         Gson _gson = new GsonBuilder()
@@ -107,10 +100,28 @@ public abstract class Scene {
         }
 
         if(!_inFile.equals("")){
+            int _maxGoId = -1;
+            int _maxCompId = -1;
+
             GameObject[] _objs = _gson.fromJson(_inFile, GameObject[].class);
-            for(GameObject _obj : _objs){
-                addGameObject(_obj);
+            for (GameObject _go : _objs) {
+                addGameObject(_go);
+
+                for (Component _c : _go.getAllComponents()) {
+                    if (_c.getUid() > _maxCompId) {
+                        _maxCompId = _c.getUid();
+                    }
+                }
+
+                if (_go.getUid() > _maxGoId) {
+                    _maxGoId = _go.getUid();
+                }
             }
+
+            _maxCompId++;
+            _maxGoId++;
+            GameObject.init(_maxGoId);
+            Component.init(_maxCompId);
             loaded = true;
         }
     }

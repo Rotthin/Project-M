@@ -1,30 +1,42 @@
 package me.rotthin.projectm.engine.components;
 
+import me.rotthin.projectm.engine.debug.DebugDraw;
+import me.rotthin.projectm.engine.debug.DebugLog;
 import me.rotthin.projectm.engine.input.MouseListener;
 import me.rotthin.projectm.engine.main.GameObject;
-import me.rotthin.projectm.engine.renderer.Window;
+import me.rotthin.projectm.engine.math.JMath;
+import me.rotthin.projectm.engine.rendering.Window;
+import me.rotthin.projectm.engine.utils.Constants;
 import org.joml.Vector2f;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import static org.lwjgl.glfw.GLFW.*;
 
-public class MouseControls extends Component {
-    private GameObject holding = null;
+public final class MouseControls {
+    private MouseControls() {}
 
-    public void pickupBlock(GameObject a_go){
+    private static GameObject holding;
+    private static Vector2f mousePosGrid = new Vector2f();
+
+    public static void pickupBlock(GameObject a_go){
         holding = a_go;
         Window.getCurrentScene().addGameObject(a_go);
+        a_go.setShowInInspector(true);
     }
 
-    public void placeBlock(){
+    public static void placeBlock(){
+        DebugLog.log("Block placed at pos: " + JMath.vector2fToString(holding.transform.position));
         holding = null;
     }
 
-    @Override
-    public void update(float a_dt){
+    public static void update(float a_dt){
+        Vector2f _mouseOrtho = MouseListener.getOrtho();
+
+        mousePosGrid.x = (int)(_mouseOrtho.x / Constants.GRID_WIDTH) * Constants.GRID_WIDTH;
+        mousePosGrid.y = (int)(_mouseOrtho.y / Constants.GRID_HEIGHT) * Constants.GRID_HEIGHT;
+
         if (holding != null) {
-            Vector2f _mousePos = MouseListener.getOrtho();
-            holding.transform.position.x = _mousePos.x-32;
-            holding.transform.position.y = _mousePos.y-32;
+            holding.transform.position.x = mousePosGrid.x;
+            holding.transform.position.y = mousePosGrid.y;
 
             if(MouseListener.isButtonDown(GLFW_MOUSE_BUTTON_LEFT)){
                 placeBlock();

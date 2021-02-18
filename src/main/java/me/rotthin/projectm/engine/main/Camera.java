@@ -1,12 +1,14 @@
-package me.rotthin.projectm.engine.math;
+package me.rotthin.projectm.engine.main;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 public class Camera {
-    private final Matrix4f projectionMatrix, invProjectionMatrix;
-    private final Matrix4f viewMatrix, invViewMatrix;
+    private Matrix4f projectionMatrix, invProjectionMatrix;
+    private Matrix4f viewMatrix, invViewMatrix;
+    public static final Vector2i PROJ_SIZE = new Vector2i(32 * 40, 32 * 21);
 
     public Vector2f position;
 
@@ -24,7 +26,7 @@ public class Camera {
         projectionMatrix.identity();
 
         // Set the orthographic projection
-        projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f);
+        projectionMatrix.ortho(0.0f, PROJ_SIZE.x, 0.0f, PROJ_SIZE.y, 0.0f, 100.0f);
 
         projectionMatrix.invert(invProjectionMatrix);
     }

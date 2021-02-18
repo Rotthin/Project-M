@@ -1,16 +1,16 @@
-package me.rotthin.projectm.engine.editor.imgui;
+package me.rotthin.projectm.engine.editor.gui.imgui;
 
 import imgui.ImGui;
-import imgui.ImString;
-import imgui.enums.ImGuiInputTextFlags;
-import me.rotthin.projectm.engine.components.Component;
+import imgui.flag.ImGuiInputTextFlags;
+import imgui.type.ImString;
+import me.rotthin.projectm.engine.annotations.ShowInInspector;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-public class ImGuiUtils {
+public final class ImGuiUtils {
     private ImGuiUtils(){}
 
     public static void showIntField(Field a_f, Object a_sender){
@@ -92,7 +92,6 @@ public class ImGuiUtils {
             ImString _imString = new ImString(_val);
 
             if(ImGui.inputText(_name + ": ", _imString, ImGuiInputTextFlags.CallbackResize)){
-                System.out.println(_imString.get());
                 a_f.set(a_sender, _imString.get());
             }
         } catch (IllegalAccessException e) {
@@ -110,10 +109,13 @@ public class ImGuiUtils {
         if(!a_header || isHeaderNotCollapsed(_type)){
             Field[] _fields = _type.getDeclaredFields();
             for(Field _f : _fields){
-                boolean _private = Modifier.isPrivate(_f.getModifiers());
-                boolean  _transient = Modifier.isTransient(_f.getModifiers());
+                if(_f.getAnnotation(ShowInInspector.class) == null){
+                    return;
+                }
 
-                if(_transient) continue;
+
+                boolean _private = Modifier.isPrivate(_f.getModifiers());
+
                 if(_private) _f.setAccessible(true);
 
                 Class _t = _f.getType();

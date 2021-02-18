@@ -1,16 +1,18 @@
 package me.rotthin.projectm.engine.components;
 
 import imgui.ImGui;
+import me.rotthin.projectm.engine.annotations.ShowInInspector;
 import me.rotthin.projectm.engine.main.Transform;
-import me.rotthin.projectm.engine.editor.imgui.ImGuiUtils;
-import me.rotthin.projectm.engine.renderer.Sprite;
-import me.rotthin.projectm.engine.renderer.Texture;
+import me.rotthin.projectm.engine.editor.gui.imgui.ImGuiUtils;
+import me.rotthin.projectm.engine.rendering.Sprite;
+import me.rotthin.projectm.engine.rendering.Texture;
+import me.rotthin.projectm.engine.rendering.Window;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class SpriteRenderer extends Component {
-    private Vector4f color;
-    private Sprite sprite;
+    @ShowInInspector private Vector4f color;
+    @ShowInInspector private Sprite sprite;
     private transient Transform lastTransform;
     private transient boolean isDirty=true;
 
@@ -34,7 +36,9 @@ public class SpriteRenderer extends Component {
 
     @Override
     public void start(){
+        isDirty = true;
         lastTransform = gameObject.transform.copy();
+        Window.getCurrentScene().renderer.add(this);
     }
 
     @Override
@@ -64,7 +68,6 @@ public class SpriteRenderer extends Component {
 
     public Texture getTexture(){
         if(sprite != null) return sprite.getTexture();
-
         return null;
     }
 
@@ -94,5 +97,13 @@ public class SpriteRenderer extends Component {
 
     public void setIsDirty(boolean a_value){
         isDirty = a_value;
+    }
+
+    public Sprite getSprite(){
+        return sprite;
+    }
+
+    public void setTexture(Texture a_tex){
+        sprite.setTexture(a_tex);
     }
 }

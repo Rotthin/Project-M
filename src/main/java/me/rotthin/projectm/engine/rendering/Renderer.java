@@ -1,4 +1,4 @@
-package me.rotthin.projectm.engine.renderer;
+package me.rotthin.projectm.engine.rendering;
 
 import me.rotthin.projectm.engine.main.GameObject;
 import me.rotthin.projectm.engine.components.SpriteRenderer;
@@ -16,11 +16,12 @@ public class Renderer {
     }
 
     public void add(GameObject a_go){
-        SpriteRenderer _spr = a_go.getComponent(SpriteRenderer.class);
-        if(_spr != null) add(_spr);
+        add(a_go.getComponent(SpriteRenderer.class));
     }
 
-    private void add(SpriteRenderer a_sprite){
+    public void add(SpriteRenderer a_sprite){
+        if(a_sprite == null) return;
+
         // Check if we can add a sprite to a existing batch
         boolean _added = false;
         for(RenderBatch _batch : batches){

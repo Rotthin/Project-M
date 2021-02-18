@@ -1,13 +1,17 @@
-package me.rotthin.projectm.engine.renderer;
+package me.rotthin.projectm.engine.rendering;
 
-import me.rotthin.projectm.engine.editor.imgui.ImGuiLayer;
-import me.rotthin.projectm.engine.editor.scenes.LevelEditorScene;
+import me.rotthin.projectm.engine.components.MouseControls;
+import me.rotthin.projectm.engine.debug.DebugDraw;
+import me.rotthin.projectm.engine.editor.gui.imgui.ImGuiLayer;
+import me.rotthin.projectm.engine.editor.scenes.EditorScene;
 import me.rotthin.projectm.engine.editor.scenes.Scene;
 import me.rotthin.projectm.engine.input.MouseListener;
 import me.rotthin.projectm.engine.input.KeyListener;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+
+import java.awt.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -21,9 +25,12 @@ public class Window {
     private int height;
     private final String title;
     public Vector4f clearColor;
+
     private static Scene currentScene;
+
     private long windowPtr;
     private ImGuiLayer imGuiLayer;
+    private static FrameBuffer frameBuffer;
 
     private Window(){
         width = 1920;
@@ -44,7 +51,7 @@ public class Window {
     public static void changeScene(int a_index){
         switch(a_index){
             case 0:
-                currentScene = new LevelEditorScene();
+                currentScene = new EditorScene();
                 break;
 
             default:
@@ -68,6 +75,7 @@ public class Window {
         initGlfw();
         initGl();
         initImGui();
+        initFrameBuffer();
 
         changeScene(0);
     }
@@ -113,6 +121,11 @@ public class Window {
         imGuiLayer.init();
     }
 
+    private void initFrameBuffer(){
+        frameBuffer = new FrameBuffer(1920, 1080);
+        glViewport(0, 0, 1920, 1080);
+    }
+
     private void loop(){
         float _beginTime = (float)glfwGetTime();
         float _endTime;
@@ -121,24 +134,37 @@ public class Window {
         while(!glfwWindowShouldClose(windowPtr)){
             glfwPollEvents();
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            update(_dt);
 
-            if(_dt >= 0) currentScene.update(_dt);
-
-            imGuiLayer.update(_dt, currentScene);
             glfwSwapBuffers(windowPtr);
 
             // Calculate delta
             _endTime = (float)glfwGetTime();
             _dt = _endTime - _beginTime;
             _beginTime = _endTime;
-
-            MouseListener.reset();
         }
 
         currentScene.save();
 
         free();
+    }
+
+    private void update(float a_dt){
+        MouseControls.update(a_dt);
+
+        if(a_dt >= 0) {
+            DebugDraw.update(a_dt);
+
+            frameBuffer.bind();
+            glClear(GL_COLOR_BUFFER_BIT);
+            currentScene.update(a_dt);
+            DebugDraw.draw();
+            frameBuffer.unbind();
+
+            imGuiLayer.update(a_dt, currentScene);
+        }
+
+        MouseListener.reset();
     }
 
     private void free(){
@@ -158,11 +184,19 @@ public class Window {
         return getInstance().height;
     }
 
+    public static FrameBuffer getFrameBuffer(){
+        return frameBuffer;
+    }
+
     public static void setWidth(int a_w){
         getInstance().width = a_w;
     }
 
     public static void setHeight(int a_h){
         getInstance().height = a_h;
+    }
+
+    public static float getTargetAspectRatio(){
+        return 16f / 9f;
     }
 }

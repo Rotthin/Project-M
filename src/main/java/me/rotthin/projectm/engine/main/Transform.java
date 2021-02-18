@@ -1,11 +1,12 @@
 package me.rotthin.projectm.engine.main;
 
-import me.rotthin.projectm.engine.editor.imgui.ImGuiUtils;
+import me.rotthin.projectm.engine.annotations.ShowInInspector;
+import me.rotthin.projectm.engine.editor.gui.imgui.ImGuiUtils;
 import org.joml.Vector2f;
 
 public class Transform {
-    public Vector2f position;
-    public Vector2f scale;
+    @ShowInInspector public Vector2f position;
+    @ShowInInspector public Vector2f scale;
 
     public Transform(){
         init(new Vector2f(), new Vector2f(1,1));
