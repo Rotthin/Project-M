@@ -1,3 +1,6 @@
+# Note
+This project is abandoned and probably doesn't work.
+
 # Project M
 Project M is a 2D Game Engine coded in Java and lwjgl.
 
